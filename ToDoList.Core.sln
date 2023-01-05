@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoList.Core.Api", "ToDoList.Core.Api\ToDoList.Core.Api.csproj", "{CDFF470F-D300-4C6A-A763-613F543DB57B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToDoList.Core.Api", "ToDoList.Core.Api\ToDoList.Core.Api.csproj", "{CDFF470F-D300-4C6A-A763-613F543DB57B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
