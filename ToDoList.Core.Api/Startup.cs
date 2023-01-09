@@ -1,0 +1,43 @@
+﻿using Microsoft.OpenApi.Models;
+
+namespace JoyBand.Api
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration) =>
+            Configuration = configuration;
+
+        public IConfiguration Configuration { get; }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
+
+            services.AddSwaggerGen(config =>
+            {
+                config.SwaggerDoc(
+                    name: "v1",
+                    info: new OpenApiInfo { Title = "JoyBand.Api", Version = "v1" });
+            });
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(config => config.SwaggerEndpoint(
+                    url: "/swagger/v1/swagger.json",
+                    name: "JoyBand.Api v1"));
+            }
+
+            app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+                endpoints.MapControllers());
+        }
+    }
+}
