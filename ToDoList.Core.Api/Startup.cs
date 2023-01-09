@@ -1,6 +1,6 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace JoyBand.Api
+namespace ToDoList.Core.Api
 {
     public class Startup
     {
