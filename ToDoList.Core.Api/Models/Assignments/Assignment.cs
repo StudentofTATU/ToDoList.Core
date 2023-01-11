@@ -3,8 +3,6 @@
 // Free to use to bring order in your workplace
 //=================================
 
-using Tarteeb.Api.Models.Tickets;
-
 namespace ToDoList.Core.Api.Models.Assignments
 {
     public class Assignment

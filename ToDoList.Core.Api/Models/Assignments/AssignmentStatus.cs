@@ -3,7 +3,7 @@
 // Free to use to bring order in your workplace
 //=================================
 
-namespace Tarteeb.Api.Models.Tickets
+namespace ToDoList.Core.Api.Models.Assignments
 {
     public enum AssignmentStatus
     {
