@@ -1,4 +1,10 @@
-﻿using Microsoft.OpenApi.Models;
+﻿//=================================
+// Copyright (c) Coalition of Good-Hearted Engineers
+// Free to use to bring order in your workplace
+//=================================
+
+using Microsoft.OpenApi.Models;
+using ToDoList.Core.Api.Brokers.Storages;
 
 namespace ToDoList.Core.Api
 {
@@ -12,6 +18,7 @@ namespace ToDoList.Core.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddDbContext<StorageBroker>();
 
             services.AddSwaggerGen(config =>
             {
