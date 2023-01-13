@@ -19,6 +19,7 @@ namespace ToDoList.Core.Api
         {
             services.AddControllers();
             services.AddDbContext<StorageBroker>();
+            services.AddTransient<IStorageBroker, StorageBroker>();
 
             services.AddSwaggerGen(config =>
             {
