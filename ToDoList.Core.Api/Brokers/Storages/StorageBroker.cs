@@ -18,7 +18,7 @@ namespace ToDoList.Core.Api.Brokers.Storages
             this.Database.Migrate();
         }
 
-        public async ValueTask<T> InsertAsync<T>(T @object)
+        private async ValueTask<T> InsertAsync<T>(T @object)
         {
             var broker = new StorageBroker(this.configuration);
 
@@ -26,6 +26,13 @@ namespace ToDoList.Core.Api.Brokers.Storages
             await broker.SaveChangesAsync();
 
             return @object;
+        }
+
+        private IQueryable<T> SelectAll<T>() where T : class
+        {
+            var broker = new StorageBroker(this.configuration);
+
+            return broker.Set<T>();
         }
 
         private async ValueTask<T> UpdateAsync<T>(T @object)
