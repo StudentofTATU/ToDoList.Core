@@ -10,6 +10,7 @@ namespace ToDoList.Core.Api.Brokers.Storages
     public partial interface IStorageBroker
     {
         ValueTask<Assignment> InsertAssignmentAsync(Assignment assignment);
+        IQueryable<Assignment> SelectAllAssignments();
         ValueTask<Assignment> UpdateAssignmentAsync(Assignment assignment);
     }
 }
