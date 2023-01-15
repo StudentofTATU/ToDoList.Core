@@ -11,6 +11,7 @@ namespace ToDoList.Core.Api.Brokers.Storages
     {
         ValueTask<Assignment> InsertAssignmentAsync(Assignment assignment);
         IQueryable<Assignment> SelectAllAssignments();
+        ValueTask<Assignment> SelectAssignmentByIdAsync(Guid id);
         ValueTask<Assignment> UpdateAssignmentAsync(Assignment assignment);
     }
 }
