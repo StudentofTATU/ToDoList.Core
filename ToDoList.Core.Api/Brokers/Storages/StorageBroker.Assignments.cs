@@ -23,5 +23,8 @@ namespace ToDoList.Core.Api.Brokers.Storages
 
         public async ValueTask<Assignment> UpdateAssignmentAsync(Assignment assignment) =>
             await UpdateAsync(assignment);
+
+        public async ValueTask<Assignment> DeleteAssignmentAsync(Assignment assignment) =>
+            await DeleteAsync(assignment);
     }
 }
