@@ -15,7 +15,7 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
         public AssignmentService(IStorageBroker storageBroker) =>
             this.storageBroker = storageBroker;
 
-        public ValueTask<Assignment> AddAssignmentAsync(Assignment assignment) =>
-            throw new NotImplementedException();
+        public async ValueTask<Assignment> AddAssignmentAsync(Assignment assignment) =>
+           await this.storageBroker.InsertAssignmentAsync(assignment);
     }
 }
