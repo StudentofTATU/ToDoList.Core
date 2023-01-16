@@ -4,6 +4,7 @@
 //=================================
 
 using Microsoft.OpenApi.Models;
+using ToDoList.Core.Api.Brokers.DateTimes;
 using ToDoList.Core.Api.Brokers.Loggings;
 using ToDoList.Core.Api.Brokers.Storages;
 
@@ -52,6 +53,7 @@ namespace ToDoList.Core.Api
         {
             services.AddTransient<IStorageBroker, StorageBroker>();
             services.AddTransient<ILoggingBroker, LoggingBroker>();
+            services.AddTransient<IDateTimeBroker, DateTimeBroker>();
         }
     }
 }
