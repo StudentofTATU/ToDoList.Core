@@ -4,6 +4,7 @@
 //=================================
 
 using Microsoft.OpenApi.Models;
+using ToDoList.Core.Api.Brokers.Loggings;
 using ToDoList.Core.Api.Brokers.Storages;
 
 namespace ToDoList.Core.Api
@@ -19,7 +20,7 @@ namespace ToDoList.Core.Api
         {
             services.AddControllers();
             services.AddDbContext<StorageBroker>();
-            services.AddTransient<IStorageBroker, StorageBroker>();
+            RegisterBrokers(services);
 
             services.AddSwaggerGen(config =>
             {
@@ -46,6 +47,11 @@ namespace ToDoList.Core.Api
 
             app.UseEndpoints(endpoints =>
                 endpoints.MapControllers());
+        }
+        private static void RegisterBrokers(IServiceCollection services)
+        {
+            services.AddTransient<IStorageBroker, StorageBroker>();
+            services.AddTransient<ILoggingBroker, LoggingBroker>();
         }
     }
 }
