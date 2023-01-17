@@ -9,7 +9,7 @@ using ToDoList.Core.Api.Models.Assignments;
 
 namespace ToDoList.Core.Api.Services.Foundations.Assignments
 {
-    public class AssignmentService : IAssignmentService
+    public partial class AssignmentService : IAssignmentService
     {
         private readonly IStorageBroker storageBroker;
         private readonly ILoggingBroker loggingBroker;
@@ -20,7 +20,12 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             this.loggingBroker = loggingBroker;
         }
 
-        public async ValueTask<Assignment> AddAssignmentAsync(Assignment assignment) =>
-            await this.storageBroker.InsertAssignmentAsync(assignment);
+        public ValueTask<Assignment> AddAssignmentAsync(Assignment assignment) =>
+        TryCatch(async () =>
+        {
+            ValidateAssignmentNotNull(assignment);
+
+            return await this.storageBroker.InsertAssignmentAsync(assignment);
+        });
     }
 }
