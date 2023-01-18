@@ -9,8 +9,7 @@ namespace ToDoList.Core.Api.Models.Assignments
 {
     public class InvalidAssingmentException : Xeption
     {
-        public InvalidAssingmentException()
-            : base(message: "Assignment is invalid")
+        public InvalidAssingmentException() : base(message: "Assignment is invalid")
         { }
     }
 }
