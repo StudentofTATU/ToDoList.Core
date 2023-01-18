@@ -5,6 +5,7 @@
 
 using Microsoft.Data.SqlClient;
 using ToDoList.Core.Api.Models.Assignments;
+using ToDoList.Core.Api.Models.Assignments.Exceptions;
 using Xeptions;
 
 namespace ToDoList.Core.Api.Services.Foundations.Assignments

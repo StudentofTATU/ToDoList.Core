@@ -5,11 +5,12 @@
 
 using Xeptions;
 
-namespace ToDoList.Core.Api.Models.Assignments
+namespace ToDoList.Core.Api.Models.Assignments.Exceptions
 {
-    public class InvalidAssingmentException : Xeption
+    public class NullAssignmentException : Xeption
     {
-        public InvalidAssingmentException() : base(message: "Assignment is invalid")
+        public NullAssignmentException()
+            : base(message: "Assignment is null.")
         { }
     }
 }

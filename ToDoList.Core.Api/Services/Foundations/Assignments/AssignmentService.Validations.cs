@@ -4,6 +4,7 @@
 //=================================
 
 using ToDoList.Core.Api.Models.Assignments;
+using ToDoList.Core.Api.Models.Assignments.Exceptions;
 
 namespace ToDoList.Core.Api.Services.Foundations.Assignments
 {

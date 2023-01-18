@@ -8,6 +8,7 @@ using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Moq;
 using ToDoList.Core.Api.Models.Assignments;
+using ToDoList.Core.Api.Models.Assignments.Exceptions;
 using Xunit;
 
 namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments

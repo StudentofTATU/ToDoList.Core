@@ -5,7 +5,7 @@
 
 using Xeptions;
 
-namespace ToDoList.Core.Api.Models.Assignments
+namespace ToDoList.Core.Api.Models.Assignments.Exceptions
 {
     public class AssignmentDependencyException : Xeption
     {
