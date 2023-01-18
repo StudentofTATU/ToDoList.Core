@@ -4,6 +4,8 @@
 //=================================
 
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
+using Microsoft.Data.SqlClient;
 using Moq;
 using ToDoList.Core.Api.Brokers.Loggings;
 using ToDoList.Core.Api.Brokers.Storages;
@@ -34,6 +36,9 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             actualException => actualException.SameExceptionAs(expectedException);
         private static DateTimeOffset GetRandomDateTime() =>
             new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
+
+        private static SqlException CreateSqlException() =>
+            (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
 
         private static Assignment CreateRandomAssignment() =>
             CreateAssignmentFiller().Create();
