@@ -23,7 +23,7 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
         public ValueTask<Assignment> AddAssignmentAsync(Assignment assignment) =>
         TryCatch(async () =>
         {
-            ValidateAssignmentNotNull(assignment);
+            ValidateAssignment(assignment);
 
             return await this.storageBroker.InsertAssignmentAsync(assignment);
         });
