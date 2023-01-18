@@ -3,6 +3,7 @@
 // Free to use to bring order in your workplace
 //=================================
 
+using Microsoft.Data.SqlClient;
 using ToDoList.Core.Api.Models.Assignments;
 using Xeptions;
 
@@ -26,6 +27,12 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             {
                 throw CreateAndLogValidationException(invalidAssingmentException);
             }
+            catch (SqlException sqlException)
+            {
+                var failedAssignmentStorageException = new FailedAssignmentStorageException(sqlException);
+
+                throw CreateAndLogCriticalDependencyException(failedAssignmentStorageException);
+            }
         }
 
         private AssignmentValidationException CreateAndLogValidationException(Xeption exception)
@@ -34,6 +41,14 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             this.loggingBroker.LogError(assignmentValidationException);
 
             return assignmentValidationException;
+        }
+
+        private AssignmentDependencyException CreateAndLogCriticalDependencyException(Xeption exception)
+        {
+            var assignmentDependencyException = new AssignmentDependencyException(exception);
+            this.loggingBroker.LogCritical(assignmentDependencyException);
+
+            return assignmentDependencyException;
         }
     }
 }
