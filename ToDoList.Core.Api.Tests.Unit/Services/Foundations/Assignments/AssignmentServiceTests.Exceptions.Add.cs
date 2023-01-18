@@ -3,6 +3,7 @@
 // Free to use to bring order in your workplace
 //=================================
 
+using EFxceptions.Models.Exceptions;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Moq;
@@ -45,6 +46,43 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogCritical(It.Is(SameExpressionAs(
                     expectedAssignmentDependencyException))), Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyValidationExceptionOnAddIfDuplicateKeyErrorOccursAndLogItAsync()
+        {
+            // given
+            Assignment someAssignment = CreateRandomAssignment();
+            string someMessage = GetRandomString();
+            var duplicateKeyException = new DuplicateKeyException(someMessage);
+
+            var failedAssignmentDependencyValidationException =
+                new FailedAssignmentDependencyValidationException(duplicateKeyException);
+
+            var expectedAssignmentDependencyValidationException =
+                new AssignmentDependencyValidationException(
+                    failedAssignmentDependencyValidationException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()))
+                    .ThrowsAsync(duplicateKeyException);
+            // when
+            ValueTask<Assignment> addAssignmentTask =
+                this.assignmentService.AddAssignmentAsync(someAssignment);
+
+            AssignmentDependencyValidationException assignmentDependencyValidationException =
+                await Assert.ThrowsAsync<AssignmentDependencyValidationException>(addAssignmentTask.AsTask);
+
+            // then
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogCritical(It.Is(SameExpressionAs(
+                    expectedAssignmentDependencyValidationException))), Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
