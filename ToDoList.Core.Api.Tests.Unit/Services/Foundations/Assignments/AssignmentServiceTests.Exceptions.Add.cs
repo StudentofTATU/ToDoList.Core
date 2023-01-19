@@ -82,7 +82,7 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
                 broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
-                broker.LogCritical(It.Is(SameExpressionAs(
+                broker.LogError(It.Is(SameExpressionAs(
                     expectedAssignmentDependencyValidationException))), Times.Once);
 
             this.storageBrokerMock.VerifyNoOtherCalls();
