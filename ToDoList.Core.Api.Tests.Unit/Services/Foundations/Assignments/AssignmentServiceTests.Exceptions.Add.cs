@@ -60,12 +60,12 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             string someMessage = GetRandomString();
             var duplicateKeyException = new DuplicateKeyException(someMessage);
 
-            var failedAssignmentDependencyValidationException =
-                new FailedAssignmentDependencyValidationException(duplicateKeyException);
+            var alreadyExistsAssignmentException =
+                new AlreadyExistsAssignmentException(duplicateKeyException);
 
             var expectedAssignmentDependencyValidationException =
                 new AssignmentDependencyValidationException(
-                    failedAssignmentDependencyValidationException);
+                    alreadyExistsAssignmentException);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.InsertAssignmentAsync(It.IsAny<Assignment>()))

@@ -7,10 +7,10 @@ using Xeptions;
 
 namespace ToDoList.Core.Api.Models.Assignments.Exceptions
 {
-    public class FailedAssignmentDependencyValidationException : Xeption
+    public class AlreadyExistsAssignmentException : Xeption
     {
-        public FailedAssignmentDependencyValidationException(Exception innerException)
-            : base(message: "Falied assignment dependency validation error occurred, fix the errors and try again.",
+        public AlreadyExistsAssignmentException(Exception innerException)
+            : base(message: "Assignment already exists.",
                 innerException)
         { }
     }
