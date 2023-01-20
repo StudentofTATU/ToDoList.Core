@@ -6,6 +6,7 @@
 using EFxceptions.Models.Exceptions;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using ToDoList.Core.Api.Models.Assignments;
 using ToDoList.Core.Api.Models.Assignments.Exceptions;
@@ -78,6 +79,45 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
                 await Assert.ThrowsAsync<AssignmentDependencyValidationException>(addAssignmentTask.AsTask);
 
             // then
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentDependencyValidationException))), Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyValidationExceptionOnAddIfDbConcurrencyErrorOccursAndLogItAsync()
+        {
+            // given
+            Assignment someAssignment = CreateRandomAssignment();
+            var dbUpdateConcurrencyException = new DbUpdateConcurrencyException();
+
+            var lockedAssignmentException =
+                new LockedAssignmentException(dbUpdateConcurrencyException);
+
+            var expectedAssignmentDependencyValidationException =
+                new AssignmentDependencyValidationException(lockedAssignmentException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()))
+                    .ThrowsAsync(dbUpdateConcurrencyException);
+
+            // when
+            ValueTask<Assignment> addAssignmentTask =
+                this.assignmentService.AddAssignmentAsync(someAssignment);
+
+            AssignmentDependencyValidationException actualAssignmentDependencyValidationException =
+                await Assert.ThrowsAsync<AssignmentDependencyValidationException>(addAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentDependencyValidationException.Should()
+                .BeEquivalentTo(expectedAssignmentDependencyValidationException);
+
             this.storageBrokerMock.Verify(broker =>
                 broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Once);
 
