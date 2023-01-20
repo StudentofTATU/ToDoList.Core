@@ -156,9 +156,8 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             var expectedAssignmentServiceException =
                 new AssignmentServiceException(failedAssignmentServiceException);
 
-            this.storageBrokerMock.Setup(broker =>
-                broker.InsertAssignmentAsync(It.IsAny<Assignment>()))
-                    .ThrowsAsync(serviceException);
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetCurrentDateTime()).Throws(serviceException);
 
             // when
             ValueTask<Assignment> addAssignmentTask =
@@ -170,15 +169,19 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             // then
             actualAssignmentServiceException.Should().BeEquivalentTo(expectedAssignmentServiceException);
 
-            this.storageBrokerMock.Verify(broker =>
-                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Once);
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrentDateTime(), Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogError(It.Is(SameExpressionAs(
                     expectedAssignmentServiceException))), Times.Once);
 
-            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
         }
     }
 }
