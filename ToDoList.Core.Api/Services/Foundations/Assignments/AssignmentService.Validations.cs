@@ -10,7 +10,7 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
 {
     public partial class AssignmentService
     {
-        private static void ValidateAssignment(Assignment assignment)
+        private void ValidateAssignment(Assignment assignment)
         {
             ValidateAssignmentNotNull(assignment);
 
@@ -20,6 +20,7 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
                 (Rule: IsInvalid(assignment.Description), Parameter: nameof(Assignment.Description)),
                 (Rule: IsInvalid(assignment.CreatedDate), Parameter: nameof(Assignment.CreatedDate)),
                 (Rule: IsInvalid(assignment.UpdatedDate), Parameter: nameof(Assignment.UpdatedDate)),
+                (Rule: IsNotRecent(assignment.CreatedDate), Parameter: nameof(Assignment.CreatedDate)),
                 (Rule: IsNotSame(
                     firstDate: assignment.CreatedDate,
                     secondDate: assignment.UpdatedDate,
@@ -54,6 +55,20 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
                 Condition = firstDate != secondDate,
                 Message = $"Date is not same as {secondDateName}"
             };
+
+        private dynamic IsNotRecent(DateTimeOffset date) => new
+        {
+            Condition = IsDateNotRecent(date),
+            Message = "Date is not recent"
+        };
+
+        private bool IsDateNotRecent(DateTimeOffset date)
+        {
+            DateTimeOffset currentDateTime = this.dateTimeBroker.GetCurrnetDateTime();
+            TimeSpan timeDifference = currentDateTime.Subtract(date);
+
+            return timeDifference.TotalSeconds is > 60 or < 0;
+        }
 
         private static void ValidateAssignmentNotNull(Assignment assignment)
         {
