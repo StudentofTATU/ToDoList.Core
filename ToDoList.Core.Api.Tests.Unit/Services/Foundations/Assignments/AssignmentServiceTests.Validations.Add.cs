@@ -57,30 +57,30 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
                 Title = invalidString
             };
 
-            var invalidAssingmentException = new InvalidAssingmentException();
+            var invalidAssignmentException = new InvalidAssignmentException();
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                 key: nameof(Assignment.Id),
                 values: "Id is required");
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                 key: nameof(Assignment.Title),
                 values: "Text is required");
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                key: nameof(Assignment.Description),
                values: "Text is required");
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                key: nameof(Assignment.CreatedDate),
                values: "Value is required");
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                 key: nameof(Assignment.UpdatedDate),
                 values: "Value is required");
 
             AssignmentValidationException expectedAssignmentValidationException =
-                new AssignmentValidationException(invalidAssingmentException);
+                new AssignmentValidationException(invalidAssignmentException);
 
             // when
             ValueTask<Assignment> addAssginmentTask =
@@ -112,14 +112,14 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             Assignment randomAssignment = CreateRandomAssignment(randomDateTime);
             Assignment invalidAssignment = randomAssignment;
             randomAssignment.UpdatedDate = anotherRandomDate;
-            var invalidAssingmentException = new InvalidAssingmentException();
+            var invalidAssignmentException = new InvalidAssignmentException();
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                 key: nameof(Assignment.CreatedDate),
                 values: $"Date is not same as {nameof(Assignment.UpdatedDate)}");
 
             var expectedAssignmentValidationException =
-                new AssignmentValidationException(invalidAssingmentException);
+                new AssignmentValidationException(invalidAssignmentException);
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetCurrentDateTime()).Returns(randomDateTime);
@@ -160,15 +160,15 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             Assignment randomInvalidAssignment = CreateRandomAssignment(invalidRandomDateTime);
             Assignment invalidAssignment = randomInvalidAssignment;
 
-            var invalidAssingmentException = new InvalidAssingmentException();
+            var invalidAssignmentException = new InvalidAssignmentException();
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                 key: nameof(Assignment.CreatedDate),
                 values: "Date is not recent"
                 );
 
             var expectedAssignmentValidationException =
-                new AssignmentValidationException(invalidAssingmentException);
+                new AssignmentValidationException(invalidAssignmentException);
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetCurrentDateTime()).Returns(randomDateTime);
@@ -208,18 +208,18 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             Assignment invalidAssignment = randomAssignment;
             invalidAssignment.Priority = GetInvalidEnum<Priority>();
             invalidAssignment.AssignmentStatus = GetInvalidEnum<AssignmentStatus>();
-            var invalidAssingmentException = new InvalidAssingmentException();
+            var invalidAssignmentException = new InvalidAssignmentException();
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                 key: nameof(Assignment.Priority),
                 values: "Value is not recognized");
 
-            invalidAssingmentException.AddData(
+            invalidAssignmentException.AddData(
                 key: nameof(Assignment.AssignmentStatus),
                 values: "Value is not recognized");
 
             var actualAssignmentValidationException =
-                new AssignmentValidationException(invalidAssingmentException);
+                new AssignmentValidationException(invalidAssignmentException);
 
             this.dateTimeBrokerMock.Setup(broker =>
                 broker.GetCurrentDateTime()).Returns(randomDateTime);

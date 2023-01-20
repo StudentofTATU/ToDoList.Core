@@ -56,6 +56,7 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
 
         private Expression<Func<Exception, bool>> SameExpressionAs(Xeption expectedException) =>
             actualException => actualException.SameExceptionAs(expectedException);
+
         private static DateTimeOffset GetRandomDateTime() =>
             new DateTimeRange(earliestDate: DateTime.UnixEpoch).GetValue();
 

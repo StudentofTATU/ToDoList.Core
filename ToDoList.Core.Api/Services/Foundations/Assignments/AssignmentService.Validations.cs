@@ -95,19 +95,19 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
-            InvalidAssingmentException invalidAssingmentException = new InvalidAssingmentException();
+            InvalidAssignmentException invalidAssignmentException = new InvalidAssignmentException();
 
             foreach ((dynamic rule, string parameter) in validations)
             {
                 if (rule.Condition)
                 {
-                    invalidAssingmentException.UpsertDataList(
+                    invalidAssignmentException.UpsertDataList(
                         key: parameter,
                         value: rule.Message);
                 }
             }
 
-            invalidAssingmentException.ThrowIfContainsErrors();
+            invalidAssignmentException.ThrowIfContainsErrors();
         }
     }
 }

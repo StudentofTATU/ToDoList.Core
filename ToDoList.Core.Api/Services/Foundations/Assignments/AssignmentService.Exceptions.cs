@@ -26,9 +26,9 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             {
                 throw CreateAndLogValidationException(nullAssignmentException);
             }
-            catch (InvalidAssingmentException invalidAssingmentException)
+            catch (InvalidAssignmentException invalidAssignmentException)
             {
-                throw CreateAndLogValidationException(invalidAssingmentException);
+                throw CreateAndLogValidationException(invalidAssignmentException);
             }
             catch (SqlException sqlException)
             {

@@ -139,8 +139,8 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
                 broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
 
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
-            this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
         }
 
         [Fact]
