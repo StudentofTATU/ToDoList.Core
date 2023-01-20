@@ -19,7 +19,13 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
                 (Rule: IsInvalid(assignment.Title), Parameter: nameof(Assignment.Title)),
                 (Rule: IsInvalid(assignment.Description), Parameter: nameof(Assignment.Description)),
                 (Rule: IsInvalid(assignment.CreatedDate), Parameter: nameof(Assignment.CreatedDate)),
-                (Rule: IsInvalid(assignment.UpdatedDate), Parameter: nameof(Assignment.UpdatedDate)));
+                (Rule: IsInvalid(assignment.UpdatedDate), Parameter: nameof(Assignment.UpdatedDate)),
+                (Rule: IsNotSame(
+                    firstDate: assignment.CreatedDate,
+                    secondDate: assignment.UpdatedDate,
+                    secondDateName: nameof(Assignment.UpdatedDate)),
+
+                Parameter: nameof(Assignment.CreatedDate)));
         }
 
         private static dynamic IsInvalid(Guid id) => new
@@ -39,6 +45,15 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             Condition = date == default,
             Message = "Value is required"
         };
+
+        private static dynamic IsNotSame(
+            DateTimeOffset firstDate,
+            DateTimeOffset secondDate,
+            string secondDateName) => new
+            {
+                Condition = firstDate != secondDate,
+                Message = $"Date is not same as {secondDateName}"
+            };
 
         private static void ValidateAssignmentNotNull(Assignment assignment)
         {
