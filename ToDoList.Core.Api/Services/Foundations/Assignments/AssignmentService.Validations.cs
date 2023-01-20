@@ -18,6 +18,8 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
                 (Rule: IsInvalid(assignment.Id), Parameter: nameof(Assignment.Id)),
                 (Rule: IsInvalid(assignment.Title), Parameter: nameof(Assignment.Title)),
                 (Rule: IsInvalid(assignment.Description), Parameter: nameof(Assignment.Description)),
+                (Rule: IsInvalid(assignment.Priority), Parameter: nameof(Assignment.Priority)),
+                (Rule: IsInvalid(assignment.AssignmentStatus), Parameter: nameof(Assignment.AssignmentStatus)),
                 (Rule: IsInvalid(assignment.CreatedDate), Parameter: nameof(Assignment.CreatedDate)),
                 (Rule: IsInvalid(assignment.UpdatedDate), Parameter: nameof(Assignment.UpdatedDate)),
                 (Rule: IsNotRecent(assignment.CreatedDate), Parameter: nameof(Assignment.CreatedDate)),
@@ -55,6 +57,19 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
                 Condition = firstDate != secondDate,
                 Message = $"Date is not same as {secondDateName}"
             };
+
+        private static dynamic IsInvalid<T>(T value) => new
+        {
+            Condition = IsEnumInvalid(value),
+            Message = "Value is not recognized"
+        };
+
+        private static bool IsEnumInvalid<T>(T value)
+        {
+            bool isDefined = Enum.IsDefined(typeof(T), value);
+
+            return isDefined is false;
+        }
 
         private dynamic IsNotRecent(DateTimeOffset date) => new
         {
