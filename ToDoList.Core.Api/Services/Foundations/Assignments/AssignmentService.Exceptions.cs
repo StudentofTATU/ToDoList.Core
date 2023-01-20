@@ -5,6 +5,7 @@
 
 using EFxceptions.Models.Exceptions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using ToDoList.Core.Api.Models.Assignments;
 using ToDoList.Core.Api.Models.Assignments.Exceptions;
 using Xeptions;
@@ -42,6 +43,12 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
                     new AlreadyExistsAssignmentException(duplicateKeyException);
 
                 throw CreateAndDependencyValidationException(alreadyExistsAssignmentException);
+            }
+            catch (DbUpdateConcurrencyException dbUpdateConcurrencyException)
+            {
+                var lockedAssignmentException = new LockedAssignmentException(dbUpdateConcurrencyException);
+
+                throw CreateAndDependencyValidationException(lockedAssignmentException);
             }
         }
 
