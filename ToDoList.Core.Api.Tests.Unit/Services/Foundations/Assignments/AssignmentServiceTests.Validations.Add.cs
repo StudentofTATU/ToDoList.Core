@@ -1,0 +1,253 @@
+﻿//=================================
+// Copyright (c) Coalition of Good-Hearted Engineers
+// Free to use to bring order in your workplace
+//=================================
+
+using FluentAssertions;
+using Moq;
+using ToDoList.Core.Api.Models.Assignments;
+using ToDoList.Core.Api.Models.Assignments.Exceptions;
+using Xunit;
+
+namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
+{
+    public partial class AssignmentServiceTests
+    {
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnAddIfInputIsNullAndLogItAsync()
+        {
+            // given
+            Assignment noAssignment = null;
+            var nullAssignmentException = new NullAssignmentException();
+
+            var expectedAssignmentValidationException =
+                new AssignmentValidationException(nullAssignmentException);
+
+            // when
+            ValueTask<Assignment> addAssignmentTask =
+                this.assignmentService.AddAssignmentAsync(noAssignment);
+
+            AssignmentValidationException actualAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(addAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentValidationException.Should().BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task ShouldThrowValidationExceptionOnAddIfAssignmentIsInvalidAndLogItAsync(
+            string invalidString)
+        {
+            // given
+            var invalidAssignment = new Assignment
+            {
+                Title = invalidString
+            };
+
+            var invalidAssignmentException = new InvalidAssignmentException();
+
+            invalidAssignmentException.AddData(
+                key: nameof(Assignment.Id),
+                values: "Id is required");
+
+            invalidAssignmentException.AddData(
+                key: nameof(Assignment.Title),
+                values: "Text is required");
+
+            invalidAssignmentException.AddData(
+               key: nameof(Assignment.Description),
+               values: "Text is required");
+
+            invalidAssignmentException.AddData(
+               key: nameof(Assignment.CreatedDate),
+               values: "Value is required");
+
+            invalidAssignmentException.AddData(
+                key: nameof(Assignment.UpdatedDate),
+                values: "Value is required");
+
+            AssignmentValidationException expectedAssignmentValidationException =
+                new AssignmentValidationException(invalidAssignmentException);
+
+            // when
+            ValueTask<Assignment> addAssginmentTask =
+                this.assignmentService.AddAssignmentAsync(invalidAssignment);
+
+            AssignmentValidationException actualAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(addAssginmentTask.AsTask);
+
+            // then
+            actualAssignmentValidationException.Should().BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnAddIfCreatedDateIsNotSameAsUpdatedDateAndLogItAsync()
+        {
+            // given
+            DateTimeOffset randomDateTime = GetRandomDateTime();
+            DateTimeOffset anotherRandomDate = GetRandomDateTime();
+            Assignment randomAssignment = CreateRandomAssignment(randomDateTime);
+            Assignment invalidAssignment = randomAssignment;
+            randomAssignment.UpdatedDate = anotherRandomDate;
+            var invalidAssignmentException = new InvalidAssignmentException();
+
+            invalidAssignmentException.AddData(
+                key: nameof(Assignment.CreatedDate),
+                values: $"Date is not same as {nameof(Assignment.UpdatedDate)}");
+
+            var expectedAssignmentValidationException =
+                new AssignmentValidationException(invalidAssignmentException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetCurrentDateTime()).Returns(randomDateTime);
+
+            // when
+            ValueTask<Assignment> addAssignmentTask =
+                this.assignmentService.AddAssignmentAsync(invalidAssignment);
+
+            AssignmentValidationException actualAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(addAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentValidationException.Should()
+                .BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrentDateTime(), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidSeconds))]
+        public async Task ShouldThrowValidationExceptionOnAddIfCreatedDateIsNotRecentAndLogItAsync(int invalidSeconds)
+        {
+            // given
+            DateTimeOffset randomDateTime = GetRandomDateTime();
+            DateTimeOffset invalidRandomDateTime = randomDateTime.AddSeconds(invalidSeconds);
+            Assignment randomInvalidAssignment = CreateRandomAssignment(invalidRandomDateTime);
+            Assignment invalidAssignment = randomInvalidAssignment;
+
+            var invalidAssignmentException = new InvalidAssignmentException();
+
+            invalidAssignmentException.AddData(
+                key: nameof(Assignment.CreatedDate),
+                values: "Date is not recent"
+                );
+
+            var expectedAssignmentValidationException =
+                new AssignmentValidationException(invalidAssignmentException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetCurrentDateTime()).Returns(randomDateTime);
+
+            // when
+            ValueTask<Assignment> addAssignmentTask =
+                this.assignmentService.AddAssignmentAsync(invalidAssignment);
+
+            AssignmentValidationException actualAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(addAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentValidationException.Should()
+                .BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrentDateTime(), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnAddIfEnumsAreInvalidAndLogItAsync()
+        {
+            // given
+            DateTimeOffset randomDateTime = GetRandomDateTime();
+            Assignment randomAssignment = CreateRandomAssignment(randomDateTime);
+            Assignment invalidAssignment = randomAssignment;
+            invalidAssignment.Priority = GetInvalidEnum<Priority>();
+            invalidAssignment.AssignmentStatus = GetInvalidEnum<AssignmentStatus>();
+            var invalidAssignmentException = new InvalidAssignmentException();
+
+            invalidAssignmentException.AddData(
+                key: nameof(Assignment.Priority),
+                values: "Value is not recognized");
+
+            invalidAssignmentException.AddData(
+                key: nameof(Assignment.AssignmentStatus),
+                values: "Value is not recognized");
+
+            var actualAssignmentValidationException =
+                new AssignmentValidationException(invalidAssignmentException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetCurrentDateTime()).Returns(randomDateTime);
+
+            // when
+            ValueTask<Assignment> addAssignmentTask =
+                this.assignmentService.AddAssignmentAsync(invalidAssignment);
+
+            AssignmentValidationException expectedAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(addAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentValidationException.Should()
+                .BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrentDateTime(), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+    }
+}

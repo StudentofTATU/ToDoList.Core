@@ -7,7 +7,7 @@ namespace ToDoList.Core.Api.Brokers.DateTimes
 {
     public class DateTimeBroker : IDateTimeBroker
     {
-        public DateTimeOffset GetCurrnetDateTime() =>
+        public DateTimeOffset GetCurrentDateTime() =>
             DateTimeOffset.UtcNow;
     }
 }
