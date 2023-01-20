@@ -17,10 +17,14 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
         public async Task ShouldAddAssignmentAsync()
         {
             // given
-            Assignment randomAssignment = CreateRandomAssignment();
+            DateTimeOffset randomDateTime = GetRandomDateTime();
+            Assignment randomAssignment = CreateRandomAssignment(randomDateTime);
             Assignment inputAssignment = randomAssignment;
             Assignment persistAssignment = inputAssignment;
             Assignment expectedAssignment = persistAssignment.DeepClone();
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetCurrentDateTime()).Returns(randomDateTime);
 
             this.storageBrokerMock.Setup(broker =>
                 broker.InsertAssignmentAsync(inputAssignment))
@@ -33,10 +37,15 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             // then
             assignment.Should().BeEquivalentTo(expectedAssignment);
 
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrentDateTime(), Times.Once);
+
             this.storageBrokerMock.Verify(broker =>
                 broker.InsertAssignmentAsync(inputAssignment), Times.Once);
 
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
         }
     }
 }
