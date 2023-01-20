@@ -7,12 +7,14 @@ using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Microsoft.Data.SqlClient;
 using Moq;
+using ToDoList.Core.Api.Brokers.DateTimes;
 using ToDoList.Core.Api.Brokers.Loggings;
 using ToDoList.Core.Api.Brokers.Storages;
 using ToDoList.Core.Api.Models.Assignments;
 using ToDoList.Core.Api.Services.Foundations.Assignments;
 using Tynamix.ObjectFiller;
 using Xeptions;
+using Xunit;
 
 namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
 {
@@ -20,16 +22,36 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
     {
         private readonly Mock<IStorageBroker> storageBrokerMock;
         private readonly Mock<ILoggingBroker> loggingBrokerMock;
+        private readonly Mock<IDateTimeBroker> dateTimeBrokerMock;
         private readonly IAssignmentService assignmentService;
 
         public AssignmentServiceTests()
         {
             this.storageBrokerMock = new Mock<IStorageBroker>();
             this.loggingBrokerMock = new Mock<ILoggingBroker>();
+            this.dateTimeBrokerMock = new Mock<IDateTimeBroker>();
 
             this.assignmentService = new AssignmentService(
                 storageBroker: this.storageBrokerMock.Object,
-                loggingBroker: this.loggingBrokerMock.Object);
+                loggingBroker: this.loggingBrokerMock.Object,
+                dateTimeBroker: this.dateTimeBrokerMock.Object);
+        }
+
+        public static TheoryData<int> InvalidSeconds()
+        {
+            int secondsInPast = -1 * new IntRange(
+                min: 60,
+                max: short.MaxValue).GetValue();
+
+            int secondsInFuture = new IntRange(
+                min: 0,
+                max: short.MaxValue).GetValue();
+
+            return new TheoryData<int>
+            {
+                secondsInPast,
+                secondsInFuture
+            };
         }
 
         private Expression<Func<Exception, bool>> SameExpressionAs(Xeption expectedException) =>
@@ -44,12 +66,14 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
 
         private static Assignment CreateRandomAssignment() =>
-            CreateAssignmentFiller().Create();
+            CreateAssignmentFiller(GetRandomDateTime()).Create();
 
-        private static Filler<Assignment> CreateAssignmentFiller()
+        private static Assignment CreateRandomAssignment(DateTimeOffset dates) =>
+            CreateAssignmentFiller(dates).Create();
+
+        private static Filler<Assignment> CreateAssignmentFiller(DateTimeOffset dates)
         {
             var filler = new Filler<Assignment>();
-            DateTimeOffset dates = GetRandomDateTime();
 
             filler.Setup()
                 .OnType<DateTimeOffset>().Use(dates);

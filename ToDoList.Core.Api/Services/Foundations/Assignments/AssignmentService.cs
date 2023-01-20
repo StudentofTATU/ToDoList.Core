@@ -3,6 +3,7 @@
 // Free to use to bring order in your workplace
 //=================================
 
+using ToDoList.Core.Api.Brokers.DateTimes;
 using ToDoList.Core.Api.Brokers.Loggings;
 using ToDoList.Core.Api.Brokers.Storages;
 using ToDoList.Core.Api.Models.Assignments;
@@ -13,11 +14,13 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
     {
         private readonly IStorageBroker storageBroker;
         private readonly ILoggingBroker loggingBroker;
+        private readonly IDateTimeBroker dateTimeBroker;
 
-        public AssignmentService(IStorageBroker storageBroker, ILoggingBroker loggingBroker)
+        public AssignmentService(IStorageBroker storageBroker, ILoggingBroker loggingBroker, IDateTimeBroker dateTimeBroker)
         {
             this.storageBroker = storageBroker;
             this.loggingBroker = loggingBroker;
+            this.dateTimeBroker = dateTimeBroker;
         }
 
         public ValueTask<Assignment> AddAssignmentAsync(Assignment assignment) =>

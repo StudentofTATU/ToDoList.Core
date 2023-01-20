@@ -141,5 +141,54 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Theory]
+        [MemberData(nameof(InvalidSeconds))]
+        public async Task ShouldThrowValidationExceptionOnAddIfCreatedDateIsNotRecentAndLogItAsync(int invalidSeconds)
+        {
+            // given
+            DateTimeOffset randomDateTime = GetRandomDateTime();
+            DateTimeOffset invalidRandomDateTime = randomDateTime.AddSeconds(invalidSeconds);
+            Assignment randomInvalidAssignment = CreateRandomAssignment(invalidRandomDateTime);
+            Assignment invalidAssignment = randomInvalidAssignment;
+
+            var invalidAssingmentException = new InvalidAssingmentException();
+
+            invalidAssingmentException.AddData(
+                key: nameof(Assignment.CreatedDate),
+                values: "Date is not recent"
+                );
+
+            var expectedAssignmentValidationException =
+                new AssignmentValidationException(invalidAssingmentException);
+
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetCurrnetDateTime()).Returns(randomDateTime);
+
+            // when
+            ValueTask<Assignment> addAssignmentTask =
+                this.assignmentService.AddAssignmentAsync(invalidAssignment);
+
+            AssignmentValidationException actualAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(addAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentValidationException.Should()
+                .BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrnetDateTime(), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
