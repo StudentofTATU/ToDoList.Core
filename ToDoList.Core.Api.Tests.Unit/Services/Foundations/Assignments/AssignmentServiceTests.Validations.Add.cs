@@ -102,5 +102,44 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowValidationExceptionOnAddIfCreatedDateIsNotSameAsUpdatedDateAndLogItAsync()
+        {
+            // given
+            DateTimeOffset anotherRandomDate = GetRandomDateTime();
+            Assignment randomAssignment = CreateRandomAssignment();
+            Assignment invalidAssignment = randomAssignment;
+            randomAssignment.UpdatedDate = anotherRandomDate;
+            var invalidAssingmentException = new InvalidAssingmentException();
+
+            invalidAssingmentException.AddData(
+                key: nameof(Assignment.CreatedDate),
+                values: $"Date is not same as {nameof(Assignment.UpdatedDate)}");
+
+            var expectedAssignmentValidationException =
+                new AssignmentValidationException(invalidAssingmentException);
+
+            // when
+            ValueTask<Assignment> addAssignmentTask =
+                this.assignmentService.AddAssignmentAsync(invalidAssignment);
+
+            AssignmentValidationException actualAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(addAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentValidationException.Should()
+                .BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
