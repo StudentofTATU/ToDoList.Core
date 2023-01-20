@@ -71,6 +71,21 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
         private static Assignment CreateRandomAssignment(DateTimeOffset dates) =>
             CreateAssignmentFiller(dates).Create();
 
+        private static T GetInvalidEnum<T>()
+        {
+            int randomNumber = GetRandomNumber();
+
+            while (Enum.IsDefined(typeof(T), randomNumber))
+            {
+                randomNumber = GetRandomNumber();
+            }
+
+            return (T)(object)randomNumber;
+        }
+
+        private static int GetRandomNumber() =>
+            new IntRange(min: 3, max: 99).GetValue();
+
         private static Filler<Assignment> CreateAssignmentFiller(DateTimeOffset dates)
         {
             var filler = new Filler<Assignment>();
