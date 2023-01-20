@@ -114,9 +114,8 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             var expectedAssignmentDependencyValidationException =
                 new AssignmentDependencyValidationException(lockedAssignmentException);
 
-            this.storageBrokerMock.Setup(broker =>
-                broker.InsertAssignmentAsync(It.IsAny<Assignment>()))
-                    .ThrowsAsync(dbUpdateConcurrencyException);
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetCurrentDateTime()).Throws(dbUpdateConcurrencyException);
 
             // when
             ValueTask<Assignment> addAssignmentTask =
@@ -129,13 +128,17 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             actualAssignmentDependencyValidationException.Should()
                 .BeEquivalentTo(expectedAssignmentDependencyValidationException);
 
-            this.storageBrokerMock.Verify(broker =>
-                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Once);
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrentDateTime(), Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogError(It.Is(SameExpressionAs(
                     expectedAssignmentDependencyValidationException))), Times.Once);
 
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
