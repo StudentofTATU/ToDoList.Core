@@ -163,7 +163,7 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
                 new AssignmentValidationException(invalidAssingmentException);
 
             this.dateTimeBrokerMock.Setup(broker =>
-                broker.GetCurrnetDateTime()).Returns(randomDateTime);
+                broker.GetCurrentDateTime()).Returns(randomDateTime);
 
             // when
             ValueTask<Assignment> addAssignmentTask =
@@ -177,7 +177,7 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
                 .BeEquivalentTo(expectedAssignmentValidationException);
 
             this.dateTimeBrokerMock.Verify(broker =>
-                broker.GetCurrnetDateTime(), Times.Once);
+                broker.GetCurrentDateTime(), Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogError(It.Is(SameExpressionAs(
