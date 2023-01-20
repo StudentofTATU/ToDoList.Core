@@ -50,8 +50,21 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
 
                 throw CreateAndDependencyValidationException(lockedAssignmentException);
             }
+            catch (Exception exception)
+            {
+                var failedAssignmentServiceException = new FailedAssignmentServiceException(exception);
+
+                throw CreateAndLogServiceException(failedAssignmentServiceException);
+            }
         }
 
+        private AssignmentServiceException CreateAndLogServiceException(Xeption exception)
+        {
+            var assignmentServiceException = new AssignmentServiceException(exception);
+            this.loggingBroker.LogError(assignmentServiceException);
+
+            return assignmentServiceException;
+        }
         private AssignmentValidationException CreateAndLogValidationException(Xeption exception)
         {
             var assignmentValidationException = new AssignmentValidationException(exception);
