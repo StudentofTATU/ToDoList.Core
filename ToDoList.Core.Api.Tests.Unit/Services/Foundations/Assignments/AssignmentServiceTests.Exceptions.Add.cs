@@ -72,26 +72,33 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
                 new AssignmentDependencyValidationException(
                     alreadyExistsAssignmentException);
 
-            this.storageBrokerMock.Setup(broker =>
-                broker.InsertAssignmentAsync(It.IsAny<Assignment>()))
-                    .ThrowsAsync(duplicateKeyException);
+            this.dateTimeBrokerMock.Setup(broker =>
+                broker.GetCurrentDateTime()).Throws(duplicateKeyException);
+
             // when
             ValueTask<Assignment> addAssignmentTask =
                 this.assignmentService.AddAssignmentAsync(someAssignment);
 
-            AssignmentDependencyValidationException assignmentDependencyValidationException =
+            AssignmentDependencyValidationException actualAssignmentDependencyValidationException =
                 await Assert.ThrowsAsync<AssignmentDependencyValidationException>(addAssignmentTask.AsTask);
 
             // then
-            this.storageBrokerMock.Verify(broker =>
-                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Once);
+            actualAssignmentDependencyValidationException
+                .Should().BeEquivalentTo(expectedAssignmentDependencyValidationException);
+
+            this.dateTimeBrokerMock.Verify(broker =>
+                broker.GetCurrentDateTime(), Times.Once);
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogError(It.Is(SameExpressionAs(
                     expectedAssignmentDependencyValidationException))), Times.Once);
 
-            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.Verify(broker =>
+                broker.InsertAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
         }
 
         [Fact]
