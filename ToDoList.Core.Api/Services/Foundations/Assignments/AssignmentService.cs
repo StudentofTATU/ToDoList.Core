@@ -34,6 +34,8 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
         public ValueTask<Assignment> RemoveAssignmentByIdAsync(Guid assignmentId) =>
         TryCatch(async () =>
         {
+            ValidationAssignmentId(assignmentId);
+
             Assignment maybeAssignment =
                 await this.storageBroker.SelectAssignmentByIdAsync(assignmentId);
 
