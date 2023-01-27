@@ -3,8 +3,6 @@
 // Free to use to bring order in your workplace
 //=================================
 
-
-
 using FluentAssertions;
 using Force.DeepCloner;
 using Moq;
