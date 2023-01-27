@@ -30,5 +30,8 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
 
             return await this.storageBroker.InsertAssignmentAsync(assignment);
         });
+
+        public ValueTask<Assignment> RemoveAssignmentByIdAsync(Guid assignmentId) =>
+            throw new NotImplementedException();
     }
 }
