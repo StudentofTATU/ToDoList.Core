@@ -42,7 +42,7 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
                     expectedAssignmentValidationException))), Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.DeleteAssignmentAsync(It.IsAny<Assignment>()), Times.Once);
+                broker.DeleteAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
 
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
