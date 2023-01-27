@@ -32,6 +32,12 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
         });
 
         public ValueTask<Assignment> RemoveAssignmentByIdAsync(Guid assignmentId) =>
-            throw new NotImplementedException();
+        TryCatch(async () =>
+        {
+            Assignment maybeAssignment =
+                await this.storageBroker.SelectAssignmentByIdAsync(assignmentId);
+
+            return await this.storageBroker.DeleteAssignmentAsync(maybeAssignment);
+        });
     }
 }
