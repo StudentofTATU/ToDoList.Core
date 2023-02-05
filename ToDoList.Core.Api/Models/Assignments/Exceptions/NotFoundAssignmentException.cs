@@ -7,10 +7,10 @@ using Xeptions;
 
 namespace ToDoList.Core.Api.Models.Assignments.Exceptions
 {
-    public class FailedAssignmentServiceException : Xeption
+    public class NotFoundAssignmentException : Xeption
     {
-        public FailedAssignmentServiceException(Exception innerException)
-            : base(message: "Failed assignment service occurred, please contact support", innerException)
+        public NotFoundAssignmentException(Guid assignmentId)
+           : base(message: $"Couldn't find assignment with id: {assignmentId}.")
         { }
     }
 }
