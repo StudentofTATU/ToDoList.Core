@@ -10,7 +10,7 @@ namespace ToDoList.Core.Api.Models.Assignments.Exceptions
     public class FailedAssignmentServiceException : Xeption
     {
         public FailedAssignmentServiceException(Exception innerException)
-            : base(message: "Failed profile service occurred, please contact support", innerException)
+            : base(message: "Failed assignment service occurred, please contact support", innerException)
         { }
     }
 }

@@ -30,6 +30,10 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             {
                 throw CreateAndLogValidationException(invalidAssignmentException);
             }
+            catch (NotFoundAssignmentException notFoundAssignmentException)
+            {
+                throw CreateAndLogValidationException(notFoundAssignmentException);
+            }
             catch (SqlException sqlException)
             {
                 var failedAssignmentStorageException =

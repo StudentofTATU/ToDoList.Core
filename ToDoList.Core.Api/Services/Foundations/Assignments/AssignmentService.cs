@@ -39,6 +39,8 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             Assignment maybeAssignment =
                 await this.storageBroker.SelectAssignmentByIdAsync(assignmentId);
 
+            ValidateStorageAssignmentExists(maybeAssignment, assignmentId);
+
             return await this.storageBroker.DeleteAssignmentAsync(maybeAssignment);
         });
     }

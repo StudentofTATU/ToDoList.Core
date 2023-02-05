@@ -95,6 +95,13 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
                 throw new NullAssignmentException();
             }
         }
+        private static void ValidateStorageAssignmentExists(Assignment maybeAssignment, Guid assignmentId)
+        {
+            if (maybeAssignment is null)
+            {
+                throw new NotFoundAssignmentException(assignmentId);
+            }
+        }
 
         private static void Validate(params (dynamic Rule, string Parameter)[] validations)
         {
