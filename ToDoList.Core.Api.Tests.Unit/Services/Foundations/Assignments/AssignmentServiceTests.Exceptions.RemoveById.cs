@@ -98,5 +98,45 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.loggingBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowServiceExceptionOnRemoveIfExceptionOccursAndLogItAsync()
+        {
+            // given
+            Guid assignmentId = Guid.NewGuid();
+            var serviceException = new Exception();
+
+            var failedAssignmentServiceException =
+                new FailedAssignmentServiceException(serviceException);
+
+            var expectedAssignmentServiceException =
+                new AssignmentServiceException(failedAssignmentServiceException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectAssignmentByIdAsync(It.IsAny<Guid>()))
+                    .ThrowsAsync(serviceException);
+
+            // when
+            ValueTask<Assignment> removeAssignmentByIdTask =
+                this.assignmentService.RemoveAssignmentByIdAsync(assignmentId);
+
+            AssignmentServiceException actualAssignmentServiceException =
+                await Assert.ThrowsAsync<AssignmentServiceException>(
+                    removeAssignmentByIdTask.AsTask);
+
+            // then
+            actualAssignmentServiceException.Should().BeEquivalentTo(
+                expectedAssignmentServiceException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectAssignmentByIdAsync(It.IsAny<Guid>()), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentServiceException))), Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
