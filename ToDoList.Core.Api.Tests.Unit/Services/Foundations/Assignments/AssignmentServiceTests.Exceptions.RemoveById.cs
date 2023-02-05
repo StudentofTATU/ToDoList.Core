@@ -63,7 +63,6 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
         public async Task ShouldThrowDependencyExceptionOnDeleteWhenSqlExceptionOccursAndLogItAsync()
         {
             // given
-            Guid groupId = Guid.NewGuid();
             Guid assignmentId = Guid.NewGuid();
             SqlException sqlException = CreateSqlException();
 
@@ -79,7 +78,7 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
 
             // when
             ValueTask<Assignment> deleteAssignmentTask =
-                this.assignmentService.RemoveAssignmentByIdAsync(groupId);
+                this.assignmentService.RemoveAssignmentByIdAsync(assignmentId);
 
             AssignmentDependencyException actualAssignmentDependencyException =
                 await Assert.ThrowsAsync<AssignmentDependencyException>(
