@@ -47,5 +47,50 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowNotFoundExceptionOnRemoveIfAssignmentIsNotFoundAndLogItAsync()
+        {
+            //given
+            Guid randomAssignmentId = Guid.NewGuid();
+            Guid inputAssignmentId = randomAssignmentId;
+            Assignment noAssignment = null;
+
+            var notFoundAssignmentException =
+                new NotFoundAssignmentException(inputAssignmentId);
+
+            var expectedAssignmentValidationException =
+                new AssignmentValidationException(notFoundAssignmentException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectAssignmentByIdAsync(It.IsAny<Guid>()))
+                    .ReturnsAsync(noAssignment);
+
+            //when
+            ValueTask<Assignment> removeAssignmentByIdTask =
+                this.assignmentService.RemoveAssignmentByIdAsync(inputAssignmentId);
+
+            AssignmentValidationException actualAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(
+                    removeAssignmentByIdTask.AsTask);
+
+            //then
+            actualAssignmentValidationException.Should()
+                .BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectAssignmentByIdAsync(It.IsAny<Guid>()), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.Verify(broker =>
+              broker.DeleteAssignmentAsync(It.IsAny<Assignment>()), Times.Never);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
