@@ -31,7 +31,7 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
                 Parameter: nameof(Assignment.CreatedDate)));
         }
 
-        private void ValidationAssignmentId(Guid assignmentId) =>
+        private void ValidateAssignmentId(Guid assignmentId) =>
             Validate((Rule: IsInvalid(assignmentId), Parameter: nameof(Assignment.Id)));
 
         private static dynamic IsInvalid(Guid id) => new
