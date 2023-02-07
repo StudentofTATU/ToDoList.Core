@@ -31,8 +31,8 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             return await this.storageBroker.InsertAssignmentAsync(assignment);
         });
 
-        public ValueTask<Assignment> RetrieveAssignmentByIdAsync(Guid assignmentId) =>
-            throw new NotImplementedException();
+        public async ValueTask<Assignment> RetrieveAssignmentByIdAsync(Guid assignmentId) =>
+            await this.storageBroker.SelectAssignmentByIdAsync(assignmentId);
 
         public ValueTask<Assignment> RemoveAssignmentByIdAsync(Guid assignmentId) =>
         TryCatch(async () =>
