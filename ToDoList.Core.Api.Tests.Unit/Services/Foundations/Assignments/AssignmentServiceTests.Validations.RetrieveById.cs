@@ -51,5 +51,46 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             this.storageBrokerMock.VerifyNoOtherCalls();
             this.dateTimeBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowNotFoundExceptionOnRetrieveByIdIfAssignmentIsNotFoundAndLogItAsync()
+        {
+            //given
+            Guid someAssignmentId = Guid.NewGuid();
+            Assignment noAssignment = null;
+
+            var notFoundAssignmentException =
+                new NotFoundAssignmentException(someAssignmentId);
+
+            var expectedAssignmentValidationException =
+                new AssignmentValidationException(notFoundAssignmentException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectAssignmentByIdAsync(It.IsAny<Guid>()))
+                    .ReturnsAsync(noAssignment);
+
+            //when
+            ValueTask<Assignment> retrieveAssignmentByIdTask =
+                this.assignmentService.RetrieveAssignmentByIdAsync(someAssignmentId);
+
+            AssignmentValidationException actualAssignmentValidationException =
+                await Assert.ThrowsAsync<AssignmentValidationException>(
+                    retrieveAssignmentByIdTask.AsTask);
+
+            // then
+            actualAssignmentValidationException.Should()
+                .BeEquivalentTo(expectedAssignmentValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectAssignmentByIdAsync(It.IsAny<Guid>()), Times.Once());
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentValidationException))), Times.Once);
+
+            this.storageBrokerMock.VerifyNoOtherCalls();
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.dateTimeBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
