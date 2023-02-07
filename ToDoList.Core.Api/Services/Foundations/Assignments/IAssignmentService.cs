@@ -10,6 +10,7 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
     public interface IAssignmentService
     {
         ValueTask<Assignment> AddAssignmentAsync(Assignment assignment);
+        ValueTask<Assignment> RetrieveAssignmentByIdAsync(Guid assignmentId);
         ValueTask<Assignment> RemoveAssignmentByIdAsync(Guid assignmentId);
     }
 }
