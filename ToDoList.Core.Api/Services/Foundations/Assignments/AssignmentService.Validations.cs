@@ -33,6 +33,12 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
         private void ValidateAssignmentOnModify(Assignment assignment)
         {
             ValidateAssignmentNotNull(assignment);
+
+            Validate(
+                (Rule: IsInvalid(assignment.Title), Parameter: nameof(Assignment.Title)),
+                (Rule: IsInvalid(assignment.Description), Parameter: nameof(Assignment.Description)),
+                (Rule: IsInvalid(assignment.CreatedDate), Parameter: nameof(Assignment.CreatedDate)),
+                (Rule: IsInvalid(assignment.UpdatedDate), Parameter: nameof(Assignment.UpdatedDate)));
         }
 
         private void ValidateAssignmentId(Guid assignmentId) =>
