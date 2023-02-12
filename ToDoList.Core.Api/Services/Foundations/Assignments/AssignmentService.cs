@@ -44,6 +44,9 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             return maybeAssignment;
         });
 
+        public ValueTask<Assignment> ModifyAssignmentAsync(Assignment assignment) =>
+            throw new NotImplementedException();
+
         public ValueTask<Assignment> RemoveAssignmentByIdAsync(Guid assignmentId) =>
         TryCatch(async () =>
         {
