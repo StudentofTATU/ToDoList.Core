@@ -49,6 +49,11 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
         {
             ValidateAssignmentOnModify(assignment);
 
+            Assignment maybeAssignment =
+                await this.storageBroker.SelectAssignmentByIdAsync(assignment.Id);
+
+            ValidateStorageAssignmentExists(assignment, assignment.Id);
+
             return await this.storageBroker.UpdateAssignmentAsync(assignment);
         });
 
