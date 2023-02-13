@@ -54,6 +54,13 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
 
                 throw CreateAndDependencyValidationException(lockedAssignmentException);
             }
+            catch (DbUpdateException databaseUpdateException)
+            {
+                var failedAssignmentStorageException =
+                    new FailedAssignmentStorageException(databaseUpdateException);
+
+                throw CreateAndLogDependencyException(failedAssignmentStorageException);
+            }
             catch (Exception exception)
             {
                 var failedAssignmentServiceException = new FailedAssignmentServiceException(exception);
@@ -93,6 +100,15 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
             this.loggingBroker.LogError(assignmentDependencyValidationException);
 
             return assignmentDependencyValidationException;
+        }
+        private AssignmentDependencyException CreateAndLogDependencyException(Xeption exception)
+        {
+            var assignmentDependencyException =
+                new AssignmentDependencyException(exception);
+
+            this.loggingBroker.LogError(assignmentDependencyException);
+
+            return assignmentDependencyException;
         }
     }
 }
