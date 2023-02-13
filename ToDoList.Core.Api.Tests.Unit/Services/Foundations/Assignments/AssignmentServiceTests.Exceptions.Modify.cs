@@ -5,6 +5,7 @@
 
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using ToDoList.Core.Api.Models.Assignments;
 using ToDoList.Core.Api.Models.Assignments.Exceptions;
@@ -54,6 +55,48 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
 
             this.storageBrokerMock.Verify(broker =>
                 broker.UpdateAssignmentAsync(someAssignment), Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
+
+        [Fact]
+        public async Task ShouldThrowDependencyExceptionOnModifyIfDatabaseUpdateExceptionOccursAndLogItAsync()
+        {
+            // given
+            Assignment randomAssignment = CreateRandomAssignment();
+            Assignment someAssignment = randomAssignment;
+            Guid assignmentId = someAssignment.Id;
+            var databaseUpdateException = new DbUpdateException();
+
+            var failedAssignmentStorageException =
+                new FailedAssignmentStorageException(databaseUpdateException);
+
+            var expectedAssignmentDependencyException =
+                new AssignmentDependencyException(failedAssignmentStorageException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectAssignmentByIdAsync(assignmentId))
+                    .ThrowsAsync(databaseUpdateException);
+
+            // when
+            ValueTask<Assignment> modifyAssignmentTask =
+                this.assignmentService.ModifyAssignmentAsync(someAssignment);
+
+            AssignmentDependencyException actualAssignmentDependencyException =
+                await Assert.ThrowsAsync<AssignmentDependencyException>(
+                     modifyAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentDependencyException.Should().BeEquivalentTo(
+                expectedAssignmentDependencyException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectAssignmentByIdAsync(assignmentId), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentDependencyException))), Times.Once);
 
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
