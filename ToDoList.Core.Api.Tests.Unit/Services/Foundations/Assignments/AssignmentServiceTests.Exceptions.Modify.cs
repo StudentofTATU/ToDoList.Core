@@ -101,5 +101,47 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
         }
+
+        [Fact]
+        public async Task ShouldThrowDependencyValidationExceptionOnModifyIfDatabaseUpdateConcurrencyErrorOccursAndLogItAsync()
+        {
+            // given
+            Assignment randomAssignment = CreateRandomAssignment();
+            Assignment someAssignment = randomAssignment;
+            Guid assignmentId = someAssignment.Id;
+            var databaseUpdateConcurrencyException = new DbUpdateConcurrencyException();
+
+            var lockedAssignmentException =
+                new LockedAssignmentException(databaseUpdateConcurrencyException);
+
+            var expectedAssignmentDependencyValidationException =
+                new AssignmentDependencyValidationException(lockedAssignmentException);
+
+            this.storageBrokerMock.Setup(broker =>
+                broker.SelectAssignmentByIdAsync(assignmentId))
+                    .ThrowsAsync(databaseUpdateConcurrencyException);
+
+            // when
+            ValueTask<Assignment> modifyAssignmentTask =
+                this.assignmentService.ModifyAssignmentAsync(someAssignment);
+
+            AssignmentDependencyValidationException actualAssignmentDependencyValidationException =
+                await Assert.ThrowsAsync<AssignmentDependencyValidationException>(
+                     modifyAssignmentTask.AsTask);
+
+            // then
+            actualAssignmentDependencyValidationException.Should().BeEquivalentTo(
+                expectedAssignmentDependencyValidationException);
+
+            this.storageBrokerMock.Verify(broker =>
+                broker.SelectAssignmentByIdAsync(assignmentId), Times.Once);
+
+            this.loggingBrokerMock.Verify(broker =>
+                broker.LogError(It.Is(SameExpressionAs(
+                    expectedAssignmentDependencyValidationException))), Times.Never);
+
+            this.loggingBrokerMock.VerifyNoOtherCalls();
+            this.storageBrokerMock.VerifyNoOtherCalls();
+        }
     }
 }
