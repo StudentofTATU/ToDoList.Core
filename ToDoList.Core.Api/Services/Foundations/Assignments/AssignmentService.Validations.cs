@@ -30,6 +30,16 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
 
                 Parameter: nameof(Assignment.CreatedDate)));
         }
+        private void ValidateAssignmentOnModify(Assignment assignment)
+        {
+            ValidateAssignmentNotNull(assignment);
+
+            Validate(
+                (Rule: IsInvalid(assignment.Title), Parameter: nameof(Assignment.Title)),
+                (Rule: IsInvalid(assignment.Description), Parameter: nameof(Assignment.Description)),
+                (Rule: IsInvalid(assignment.CreatedDate), Parameter: nameof(Assignment.CreatedDate)),
+                (Rule: IsInvalid(assignment.UpdatedDate), Parameter: nameof(Assignment.UpdatedDate)));
+        }
 
         private void ValidateAssignmentId(Guid assignmentId) =>
             Validate((Rule: IsInvalid(assignmentId), Parameter: nameof(Assignment.Id)));

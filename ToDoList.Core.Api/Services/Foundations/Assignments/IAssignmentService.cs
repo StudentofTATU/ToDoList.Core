@@ -11,6 +11,7 @@ namespace ToDoList.Core.Api.Services.Foundations.Assignments
     {
         ValueTask<Assignment> AddAssignmentAsync(Assignment assignment);
         ValueTask<Assignment> RetrieveAssignmentByIdAsync(Guid assignmentId);
+        ValueTask<Assignment> ModifyAssignmentAsync(Assignment assignment);
         ValueTask<Assignment> RemoveAssignmentByIdAsync(Guid assignmentId);
     }
 }
