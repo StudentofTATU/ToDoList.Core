@@ -138,7 +138,7 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
 
             this.loggingBrokerMock.Verify(broker =>
                 broker.LogError(It.Is(SameExpressionAs(
-                    expectedAssignmentDependencyValidationException))), Times.Never);
+                    expectedAssignmentDependencyValidationException))), Times.Once);
 
             this.loggingBrokerMock.VerifyNoOtherCalls();
             this.storageBrokerMock.VerifyNoOtherCalls();
