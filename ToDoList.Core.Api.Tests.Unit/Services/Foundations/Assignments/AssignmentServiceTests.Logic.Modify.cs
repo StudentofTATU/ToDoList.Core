@@ -43,7 +43,7 @@ namespace ToDoList.Core.Api.Tests.Unit.Services.Foundations.Assignments
             actualAssignment.Should().BeEquivalentTo(expectedAssignment);
 
             this.storageBrokerMock.Verify(broker =>
-                broker.SelectAssignmentByIdAsync(assignmentId), Times.Never);
+                broker.SelectAssignmentByIdAsync(assignmentId), Times.Once);
 
             this.storageBrokerMock.Verify(broker =>
                 broker.UpdateAssignmentAsync(inputAssignment), Times.Once);
